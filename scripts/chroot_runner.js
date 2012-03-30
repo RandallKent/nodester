@@ -2,44 +2,46 @@
 
 require.paths.unshift('/usr/lib/node_modules');
 
-var spawn = require('child_process').spawn;
-var exec = require('child_process').exec;
-var daemon = require('daemon');
-var fs = require('fs');
-var path = require('path');
-var net = require('net');
-var node_versions = require('../lib/lib').node_versions();
-
-
-var config = JSON.parse(fs.readFileSync(path.join('.nodester', 'config.json'), encoding = 'utf8'));
-
-var cfg = require('../config').opt;
-
-var oldmask, newmask = 0000;
+var spawn        = require('child_process').spawn
+  , exec         = require('child_process').exec
+  , daemon       = require('daemon')
+  , fs           = require('fs')
+  , path         = require('path')
+  , net          = require('net')
+  , Logger       = require('bunyan')
+  , nodeVersions = require('../lib/lib').node_versions()
+  , config       = JSON.parse(fs.readFileSync(path.join('.nodester', 'config.json'),'utf8'))
+  , cfg          = require('../config').opt
+  , oldmask
+  , newmask      = 0000
+  , log          = new Logger({name: "nodester"})
+  , run_max = 5
+  , run_count = 0
+  , LOG_STDOUT = 1
+  , LOG_STDERR = 2;
+  ;
 
 oldmask = process.umask(newmask);
-console.log('Changed umask from: ' + oldmask.toString(8) + ' to ' + newmask.toString(8));
 
-var run_max = 5;
-var run_count = 0;
-
-var LOG_STDOUT = 1;
-var LOG_STDERR = 2;
-
+log.info('Changed umask from: ' + oldmask.toString(8) + ' to ' + newmask.toString(8));
 
 var env = {
   PATH: '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin',
   NODE_ENV: 'production'
 };
+
 if (config.env) {
   Object.keys(config.env).forEach(function (key) {
     env[key] = String(config.env[key]);
   });
 }
+
 env.app_port = parseInt(config.port, 10);
 env.app_host = config.ip;
+
 var args = ['/app/' + config.start];
 var chroot_res = daemon.chroot(config.appchroot);
+
 if (chroot_res !== true) {
   log_line('chroot_runner', 'Failed to chroot to ' + config.apphome, LOG_STDERR);
   pre_shutdown();
