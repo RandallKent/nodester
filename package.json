@@ -17,7 +17,8 @@
       "cradle":"0.6.x",
       "socket.io":"0.9.x",
       "daemon":"*",
-      "bolt":"0.3.3"
+      "bolt":"0.3.3",
+      "bunyan":"0.6.x"
    },
    "engines":{
       "node":">= 0.4.7"
