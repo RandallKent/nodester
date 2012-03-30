@@ -15,10 +15,13 @@ var express = require('express')
   , config  = require('./config')
   , middle  = require('./lib/middle')
   , stats   = require('./lib/stats')
+  , Logger  = require('bunyan')
+  , log     = new Logger({name: "nodester"})
   ;
 
 var __app__ = express.createServer()
-var app = __app__
+  , app = __app__
+  ;
 
 app.configure(function () {
   app.use(express.bodyParser());
@@ -29,9 +32,6 @@ app.configure(function () {
     dumpExceptions: true
   }));
 });
-
-
-
 
 /*
  * status emitter
@@ -50,11 +50,15 @@ var dash = new bolt.Node({
 
 dash.start();
 
-// Error handler
+/*
+ * Error handler
+ */
+
 app.error(function (err, req, res, next) {
   if (err instanceof NotFound) {
     res.sendfile(__dirname + '/public/404.html')
   } else {
+    log.warn(err)
     dash.emit('nodester::500',{msg:err.message,stack:err.stack.toString()})
     res.sendfile(__dirname + '/public/500.html')
   }
@@ -105,8 +109,7 @@ setInterval(function(){
 
 process.on('uncaughtException', function (err) {
   dash.emit('nodester::uE',{ msg:err.message,stack:err.stack.toString()})
-  console.warn('[ERROR]',new Date,'=> '+err.message)
-  console.warn(err.stack)
+  log.fatal(err.stack)
 })
 
 /* Routes  */
@@ -140,9 +143,9 @@ app.get('/status', function (req, res, next) {
 /*
  * shorthands
 */
-var auth = middle.authenticate
-  , authApp = middle.authenticate_app
-  , authAdmin = middle.authenticate_admin
+var auth       = middle.authenticate
+  , authApp    = middle.authenticate_app
+  , authAdmin  = middle.authenticate_admin
   , deprecated = middle.deprecated
  ;
 
@@ -160,8 +163,10 @@ app.get('/status', status.get);
 /*
  * New coupon request
  * @Public: true
- * @raw[request]: curl -X POST -d "email=dan@nodester.com" http://localhost:4001/coupon
- * @raw[unsent]: curl http://localhost:4001/unsent
+ * @raw:
+ *    # send coupon
+ *    curl -X POST -d "email=dan@nodester.com" http://localhost:4001/coupon
+ *: curl http://localhost:4001/unsent
  * @cli: nodester coupon
  */
 
@@ -363,7 +368,7 @@ app.put('/reset_password/:token', reset_password.put);
 // default listener
 app.listen(4001);
 
-console.log('Nodester app started on port %d', app.address().port);
+log.info('Nodester app started on port %d', app.address().port);
 
 app.get('/*', function (req, res) {
   throw new NotFound;
@@ -374,5 +379,8 @@ function NotFound(msg) {
   Error.call(this, msg);
   Error.captureStackTrace(this, arguments.callee);
 };
+
+// Globalization of log
+process.log = log 
 
 /* End of file */
