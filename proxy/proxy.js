@@ -12,7 +12,11 @@ var lib    = require('../lib/lib')
 
 log.info('Starting proxy initialization');
 
-var proxymap = {};
+// Set some defaults in case that read process fail.
+var proxymap = {
+  "nodester.com":4001,
+  "api.nodester.com":4001
+};
 
 // Ghetto hack for error page
 var getErrorPage = function (title, code, error) {
