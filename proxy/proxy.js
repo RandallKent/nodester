@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-var lib    = require('../lib/lib')
+var Logger = require('bunyan')
+  , log    = process.log = new Logger({name: "proxy::nodester"})
+  , lib    = require('../lib/lib')
   , fs     = require('fs')
   , path   = require('path')
   , config = require('../config')
   , bouncy = require('bouncy')
-  , Logger = require('bunyan')
-  , log    = new Logger({name: "proxy::nodester"})
-  , process.log = log
   ;
+
 
 
 log.info('Starting proxy initialization');

@@ -12,11 +12,11 @@ var express = require('express')
   , url     = require('url')
   , sys     = require('util')
   , path    = require('path')
+  , Logger  = require('bunyan')
+  , log     = process.log = new Logger({name: "nodester"})
   , config  = require('./config')
   , middle  = require('./lib/middle')
   , stats   = require('./lib/stats')
-  , Logger  = require('bunyan')
-  , log     = new Logger({name: "nodester"})
   ;
 
 var __app__ = express.createServer()
