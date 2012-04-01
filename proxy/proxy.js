@@ -7,6 +7,7 @@ var lib    = require('../lib/lib')
   , bouncy = require('bouncy')
   , Logger = require('bunyan')
   , log    = new Logger({name: "proxy::nodester"})
+  , process.log = log
   ;
 
 
