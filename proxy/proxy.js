@@ -64,7 +64,6 @@ bouncy(function (req, bounce) {
     res.statusCode = 400;
     return res.end(getErrorPage('400 - Invalid request', '400', 'Invalid request'));
   }
-  if ()
   var host = req.headers.host.replace(/:\d+$/, '');
   var route = proxymap[host] || proxymap[''];
   // log only urls that are not media files like public folders, css,js
