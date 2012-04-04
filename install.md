@@ -1,4 +1,4 @@
-# How to install nodester in you personal cloud.
+# How to install nodester in your personal cloud.
 
 _Nodester - A node.js hosting platform_
 
